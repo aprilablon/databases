@@ -16,12 +16,13 @@ db.connection.connect(function(err){
 module.exports = {
   messages: {
     // a function which produces all the messages
-    get: function () {
+    get: function (callback) {
+      console.log('querying messages from DB');
       db.connection.query(`SELECT * FROM messages`, function(err, rows, fields) {
-        db.connection.end();
+        // db.connection.end();
         if (!err) {
           console.log('The solution is: ', rows);
-          return rows;
+          callback(err, rows);
         } else {
           console.log('Error in writing to database');
         }
@@ -31,12 +32,14 @@ module.exports = {
     post: function (message) {
       // insert into users with username
       console.log('model POST function: ', message.username);
-      db.connection.query(`INSERT INTO users (name) VALUE ("${message.username}")`, function(err, rows, fields) {
-        db.connection.end();
+      db.connection.query(`INSERT INTO users (name)
+                          SELECT * FROM (SELECT "${message.username}") AS tmp
+                          WHERE NOT EXISTS (SELECT name FROM users WHERE name = "${message.username}")`, function(err, rows, fields) {
+        // db.connection.end();
         if (!err) {
-          console.log('The solution is: ', rows);
+          console.log('The solution is - USERNAME: ', rows);
         } else {
-          console.log('Error in writing to database - USERNAME');
+          console.log('Error in writing to database - USERNAME: ', err);
         }
       });
       
@@ -44,32 +47,25 @@ module.exports = {
       var room = message.roomname || '';
 
       // insert into rooms with roomname
-      db.connection.query(`INSERT INTO rooms (name) VALUE ("${room}")`, function(err, rows, fields) {
-        db.connection.end();
+      db.connection.query(`INSERT INTO rooms (name)
+                          SELECT * FROM (SELECT "${message.roomname}") AS tmp
+                          WHERE NOT EXISTS (SELECT name FROM rooms WHERE name = "${message.roomname}")`, function(err, rows, fields) {
+        // db.connection.end();
         if (!err) {
-          console.log('The solution is: ', rows);
+          console.log('The solution is - ROOM: ', rows);
         } else {
-          console.log('Error in writing to database - ROOM');
+          console.log('Error in writing to database - ROOM: ', err);
         }
       });
 
       // insert into messages with text and user_id and room_id
-      db.connection.query(`INSERT INTO messages (message, user, room) VALUE ("${messages.text}", (SELECT id FROM users WHERE name = "${messages.username}"), (SELECT id FROM rooms WHERE name = "${messages.room}"))`, function(err, rows, fields) {
-        db.connection.end();
+      // INSERT INTO messages (message, user, room) VALUES ("${message.message}", (SELECT id FROM users WHERE name = "${message.username}"), (SELECT id FROM rooms WHERE name = "${message.roomname}"))
+      db.connection.query(`INSERT INTO messages (message, user, room) VALUES ("${message.message}", (SELECT id FROM users WHERE name = "${message.username}"), (SELECT id FROM rooms WHERE name = "${message.roomname}"))`, function(err, rows, fields) {
+        // db.connection.end();
         if (!err) {
-          console.log('The solution is: ', rows);
+          console.log('The solution is - MESSAGES: ', rows);
         } else {
-          console.log('Error in writing to database - MESSAGES');
-        }
-      });
-
-      // insert into usersRooms with user_id and room_id
-      db.connection.query(`INSERT INTO usersRooms (user, room) VALUE ((SELECT id FROM users WHERE name = "${messages.username}"), (SELECT id FROM rooms WHERE name = "${messages.room}"))`, function(err, rows, fields) {
-        db.connection.end();
-        if (!err) {
-          console.log('The solution is: ', rows);
-        } else {
-          console.log('Error in writing to database - USERSROOMS');
+          console.log('Error in writing to database - MESSAGES: ', err);
         }
       });
     } 
@@ -79,7 +75,7 @@ module.exports = {
     // Ditto as above.
     get: function (callback) {
       db.connection.query(`SELECT * FROM users`, function(err, rows, fields) {
-        db.connection.end();
+        // db.connection.end();
         if (!err) {
           console.log('The solution is: ', rows);
           callback(null, rows);
@@ -92,10 +88,12 @@ module.exports = {
     post: function (message) {
       // insert into users with username
       console.log("Helloo: ", message.username);
-      db.connection.query(`INSERT INTO users (name) VALUE ("${message.username}")`, function(err, rows, fields) {
-        db.connection.end();
+      db.connection.query(`INSERT INTO users (name)
+                          SELECT * FROM (SELECT "${message.username}") AS tmp
+                          WHERE NOT EXISTS (SELECT name FROM users WHERE name = "${message.username}")`, function(err, rows, fields) {
+        // db.connection.end();
         if (!err) {
-          console.log('The solution is: ', rows);
+          console.log('The solution is POST: ', rows);
         } else {
           console.log('Error in writing to database - POST');
         }

@@ -1,4 +1,4 @@
--- CREATE DATABASE chat;
+CREATE DATABASE chat;
 
 USE chat;
 
@@ -15,15 +15,6 @@ CREATE TABLE rooms (
 CREATE TABLE messages (
   id INTEGER PRIMARY KEY AUTO_INCREMENT,
   message TEXT NOT NULL,
-  user INTEGER, 
-  room INTEGER,
-  FOREIGN KEY(user) REFERENCES users(id),
-  FOREIGN KEY(room) REFERENCES rooms(id)
-);
-
-/* Create other tables and define schemas for them here! */
-
-CREATE TABLE usersRooms (
   user INTEGER, 
   room INTEGER,
   FOREIGN KEY(user) REFERENCES users(id),
