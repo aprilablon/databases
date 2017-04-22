@@ -16,9 +16,9 @@ db.connection.connect(function(err){
 module.exports = {
   messages: {
     // a function which produces all the messages
-    get: function (callback) {
+    get: function(callback) {
       console.log('querying messages from DB');
-      db.connection.query(`SELECT * FROM messages`, function(err, rows, fields) {
+      db.connection.query(`select * from messages m join users u on m.user = u.id join rooms r on m.room = r.id`, function(err, rows, fields) {
         // db.connection.end();
         if (!err) {
           console.log('The solution is: ', rows);
@@ -32,9 +32,7 @@ module.exports = {
     post: function (message) {
       // insert into users with username
       console.log('model POST function: ', message.username);
-      db.connection.query(`INSERT INTO users (name)
-                          SELECT * FROM (SELECT "${message.username}") AS tmp
-                          WHERE NOT EXISTS (SELECT name FROM users WHERE name = "${message.username}")`, function(err, rows, fields) {
+      db.connection.query(`INSERT IGNORE INTO users (username) VALUE ("${message.username}")`, function(err, rows, fields) {
         // db.connection.end();
         if (!err) {
           console.log('The solution is - USERNAME: ', rows);
@@ -47,9 +45,7 @@ module.exports = {
       var room = message.roomname || '';
 
       // insert into rooms with roomname
-      db.connection.query(`INSERT INTO rooms (name)
-                          SELECT * FROM (SELECT "${message.roomname}") AS tmp
-                          WHERE NOT EXISTS (SELECT name FROM rooms WHERE name = "${message.roomname}")`, function(err, rows, fields) {
+      db.connection.query(`INSERT IGNORE INTO rooms (roomname) VALUE ("${room}")`, function(err, rows, fields) {
         // db.connection.end();
         if (!err) {
           console.log('The solution is - ROOM: ', rows);
@@ -60,7 +56,7 @@ module.exports = {
 
       // insert into messages with text and user_id and room_id
       // INSERT INTO messages (message, user, room) VALUES ("${message.message}", (SELECT id FROM users WHERE name = "${message.username}"), (SELECT id FROM rooms WHERE name = "${message.roomname}"))
-      db.connection.query(`INSERT INTO messages (message, user, room) VALUES ("${message.message}", (SELECT id FROM users WHERE name = "${message.username}"), (SELECT id FROM rooms WHERE name = "${message.roomname}"))`, function(err, rows, fields) {
+      db.connection.query(`INSERT INTO messages (message, user, room) VALUES ("${message.message}", (SELECT id FROM users WHERE username = "${message.username}"), (SELECT id FROM rooms WHERE roomname = "${message.roomname}"))`, function(err, rows, fields) {
         // db.connection.end();
         if (!err) {
           console.log('The solution is - MESSAGES: ', rows);
@@ -87,10 +83,8 @@ module.exports = {
     },
     post: function (message) {
       // insert into users with username
-      console.log("Helloo: ", message.username);
-      db.connection.query(`INSERT INTO users (name)
-                          SELECT * FROM (SELECT "${message.username}") AS tmp
-                          WHERE NOT EXISTS (SELECT name FROM users WHERE name = "${message.username}")`, function(err, rows, fields) {
+      console.log("Helloo: ", message);
+      db.connection.query(`INSERT IGNORE INTO users (username) VALUE ("${message.username}")`, function(err, rows, fields) {
         // db.connection.end();
         if (!err) {
           console.log('The solution is POST: ', rows);

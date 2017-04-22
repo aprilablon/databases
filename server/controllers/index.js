@@ -20,7 +20,10 @@ var callback = function(err, data) {
     console.log('callback success: ', data);
     var dataFile = fs.readFileSync(path.join(__dirname, 'data.json'));
     dataFile = JSON.parse(dataFile);
-    dataFile.results.unshift(data);
+    console.log('parsed data file: ', dataFile);
+    dataFile.results.unshift(data[0]);
+    // _.flatten(dataFile.results);
+    console.log('after unshifting: ', dataFile);
     dataFile = JSON.stringify(dataFile);
     fs.writeFileSync(path.join(__dirname, 'data.json'), dataFile);
   }
@@ -42,6 +45,8 @@ module.exports = {
       console.log('messages GET request');
       response.set(defaultCorsHeaders);
       models.messages.get(callback);
+
+      models.messages.get(callback);
       var sendData = readFile();
       response.send(sendData); //READ in messages from DB
     }, 
@@ -58,9 +63,9 @@ module.exports = {
   users: {
     // Ditto as above
     get: function (request, response) {
-
-      response.send('GET request to the homepage');
-
+      models.users.get(callback);
+      var sendData = readFile();
+      response.send(sendData);
     },
     post: function (request, response) {
       
@@ -69,10 +74,8 @@ module.exports = {
       models.users.post(request.body);
 
       response.set(defaultCorsHeaders);
-
-      // models.users.get(callback);
-      console.log('data', data);
-      response.send(data);
+      var sendData = readFile();
+      response.send(sendData);
     }
   }
 };
