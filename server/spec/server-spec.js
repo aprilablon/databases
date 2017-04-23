@@ -92,8 +92,8 @@ describe('Persistent Node Chat Server', function() {
         console.log('test GET request: ', body);
         var messageLog = JSON.parse(body);
         console.log('parse message log: ', messageLog);
-        expect(messageLog.results[0].message).to.equal('Men like you can never change!');
-        expect(messageLog.results[0].roomxname).to.equal('main');
+        expect(messageLog[0].message).to.equal('Men like you can never change!');
+        expect(messageLog[0].roomname).to.equal('main');
         done();
       });
     });
